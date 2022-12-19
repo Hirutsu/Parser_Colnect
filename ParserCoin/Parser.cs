@@ -4,7 +4,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 using System.Net;
 
 namespace ParserCoin
@@ -75,13 +74,12 @@ namespace ParserCoin
                 _indexCurCatalog = 0;
                 foreach (var catalog in CatalogsUrl)
                 {
-
                     _lastCatalogChecking = catalog;
                     Console.WriteLine($"Берем данные из каталога - {_lastCatalogChecking}");
                     List<DirtyCoin> coins = GetCoins(GetCoinsUrl(catalog));
                     await SaveCoinsSqlAsync(coins);
-                    SaveChanges();
                     _indexCurCatalog++;
+                    SaveChanges();
                 }
             }
             catch (Exception e)
@@ -114,7 +112,7 @@ namespace ParserCoin
 
         private void SaveChanges()
         {
-            SaveInFile(CatalogsUrl.GetRange(_indexCurCatalog,CatalogsUrl.Count - 1), _fileCatalogs);
+            SaveInFile(CatalogsUrl.GetRange(_indexCurCatalog,CatalogsUrl.Count - _indexCurCatalog), _fileCatalogs);
         }
 
         private void SaveInFile(List<string> urls, string fileName)
@@ -217,7 +215,7 @@ namespace ParserCoin
                         urlsCatalogCountries.Add(_uriWebSite.Scheme + "://" + _uriWebSite.Host + item.GetAttributeValue("href", ""));
                     }
                 }
-                Thread.Sleep(2000);
+                Thread.Sleep(2500);
             }
             return urlsCatalogCountries;
         }
