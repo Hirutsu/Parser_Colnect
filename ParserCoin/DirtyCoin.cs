@@ -2,7 +2,8 @@
 {
     public class DirtyCoin
     {
-		public string? Issuer { get; set; }
+        public string? Name { get; set; }
+        public string? Issuer { get; set; }
         public string? Seria { get; set; }
 		public string? ReleaseDate { get; set; }
 		public string? LastReleaseDate { get; set; }

@@ -112,7 +112,15 @@ namespace ParserCoin
 
         private void SaveChanges()
         {
-            SaveInFile(CatalogsUrl.GetRange(_indexCurCatalog,CatalogsUrl.Count - _indexCurCatalog), _fileCatalogs);
+            try
+            {
+                SaveInFile(CatalogsUrl.GetRange(_indexCurCatalog,CatalogsUrl.Count - _indexCurCatalog), _fileCatalogs);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Не получилось сохранить изменения в файл");
+                Console.WriteLine($"Остановились на каталоге: {_lastCatalogChecking}");
+            }
         }
 
         private void SaveInFile(List<string> urls, string fileName)
@@ -133,6 +141,7 @@ namespace ParserCoin
                 foreach (var coin in coins)
                 {
                     var param = new DynamicParameters();
+                    param.Add("Name", coin.Name);
                     param.Add("Issuer", coin.Issuer);
                     param.Add("CatalogCode", coin.CatalogCode);
                     param.Add("Seria", coin.Seria);
@@ -159,10 +168,10 @@ namespace ParserCoin
                     param.Add("ImgBackUrl", coin.ImgBackUrl);
 
                     var querry = "INSERT INTO DirtyCoin " +
-                        "([Issuer], [CatalogCode], [Seria], [Topics], [ReleaseDate], [LastReleaseDate], [Spreading], [Thickness], [Mint], [Material], [Gurt], [Shape], " +
+                        "([Name], [Issuer], [CatalogCode], [Seria], [Topics], [ReleaseDate], [LastReleaseDate], [Spreading], [Thickness], [Mint], [Material], [Gurt], [Shape], " +
                         "[Weight], [Size], [Denomination], [KnownCirculation], [MaterialDetails], [Mark], [SimilarMark], [Description], [Orientation], [Kant],[ImgFrontUrl],[ImgBackUrl]) " +
                         "VALUES " +
-                        "(@Issuer, @CatalogCode, @Seria, @Topics, @ReleaseDate, @LastReleaseDate, @Spreading, @Thickness, @Mint, @Material, @Gurt, @Shape, " +
+                        "(@Name, @Issuer, @CatalogCode, @Seria, @Topics, @ReleaseDate, @LastReleaseDate, @Spreading, @Thickness, @Mint, @Material, @Gurt, @Shape, " +
                         "@Weight, @Size, @Denomination, @KnownCirculation, @MaterialDetails, @Mark, @SimilarMark, @Description, @Orientation, @Kant, @ImgFrontUrl, @ImgBackUrl);";
                     await db.QueryAsync(querry, param);
                 }
@@ -262,6 +271,8 @@ namespace ParserCoin
                 doc.Load(stream);
 
                 DirtyCoin dirtyCoin = new();
+
+                dirtyCoin.Name = doc.DocumentNode.SelectNodes($"//span[contains(@id, 'name')]")?.FirstOrDefault()?.InnerHtml;
 
                 for (int index = 0; index < 25; index++)
                 {
